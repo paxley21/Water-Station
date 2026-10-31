@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AquaFlow Admin</title>
+<link rel="manifest" href="/manifest.webmanifest"><meta name="theme-color" content="#006989">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{margin:0;font:14px/1.5 Poppins,system-ui,sans-serif;color:#f4f8fa;min-height:100vh;padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0);text-shadow:0 1px 2px rgba(0,40,55,.5);background:radial-gradient(circle at 0 0,rgba(234,235,237,.3),rgba(234,235,237,0) 24%),linear-gradient(150deg,#006989,#00566f 45%,#003f52) fixed}
+h1,h2,h3{font-family:'Playfair Display',Georgia,serif;margin:0;text-shadow:0 2px 6px rgba(0,35,50,.65)}
+.wrap{max-width:1100px;margin:auto;padding:14px}
+.glass{background:rgba(0,38,52,.7);border:1px solid rgba(255,255,255,.28);border-radius:16px;padding:14px;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 8px 28px rgba(0,30,45,.35)}
+header{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:14px}
+button,select,input,textarea{font:inherit;border-radius:10px;border:1px solid rgba(255,255,255,.3);padding:8px 12px;background:rgba(255,255,255,.1);color:#fff;text-shadow:none}
+input,select,textarea{background:rgba(0,25,35,.7);width:100%}
+select option{color:#000}
+button{cursor:pointer;transition:.2s}button:hover{background:rgba(255,255,255,.22);transform:translateY(-1px)}
+.pri{background:#eaebed;color:#00303f;font-weight:600;border-color:#eaebed}.pri:hover{background:#fff}
+.dng{border-color:#ff9c9c;color:#ffd0d0}
+.tabs,.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.on{background:#eaebed!important;color:#00303f!important;font-weight:600}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:12px}
+.stat b{display:block;font:700 24px 'Playfair Display',serif}.stat span{font-size:12px;color:#cfe0e6}
+.card{margin-bottom:12px}
+.row{display:flex;flex-wrap:wrap;gap:8px 18px;justify-content:space-between}
+.col{min-width:200px;flex:1}.lbl{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#9fc3cf}
+.badge{display:inline-block;padding:2px 10px;border-radius:99px;font-size:11px;font-weight:600;border:1px solid rgba(255,255,255,.4)}
+.b-ready{background:#cdeedd;color:#064}.b-done{background:#eaebed;color:#00303f}.b-cancel{background:#ffd0d0;color:#700}.b-wait{background:#ffe7b3;color:#650}.b-prep{background:#bfe7f3;color:#034}
+.act{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+a{color:#bfe7f3}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+#login{max-width:340px;margin:12vh auto}
+.hide{display:none!important}
+@media(max-width:600px){.wrap{padding:10px}.act button{flex:1}}
+</style></head><body>
+<div class="wrap">
+ <div id="login" class="glass"><h2>Admin sign in</h2><p style="color:#cfe0e6">AquaFlow Negros station management</p>
+  <input id="pw" type="password" placeholder="Admin password" autocomplete="current-password"><p id="lerr" style="color:#ffd0d0;margin:6px 0"></p><button class="pri" style="width:100%" onclick="login()">Sign in</button></div>
+ <div id="app" class="hide">
+  <header><div><h1>AquaFlow Admin</h1><span class="lbl">Orders, customers &amp; stations</span></div><div><a href="/">Customer site</a> &nbsp; <button onclick="logout()">Sign out</button></div></header>
+  <div class="tabs"><button id="t-orders" class="on" onclick="tab('orders')">Orders</button><button id="t-merchants" onclick="tab('merchants')">Merchants</button><button id="t-payouts" onclick="tab('payouts')">Payouts &amp; refunds</button><button id="t-franchises" onclick="tab('franchises')">Franchises</button><button id="t-stations" onclick="tab('stations')">Stations</button></div>
+  <section id="orders"><div class="stats" id="stats"></div>
+   <div class="chips" id="chips"></div><input id="q" placeholder="Search name, phone, email, order no., station…" oninput="renderOrders()" style="margin-bottom:12px"><div id="olist"></div></section>
+  <section id="stations" class="hide">
+   <div class="glass card"><h3>Add a station</h3><p style="color:#cfe0e6;margin:4px 0 10px">On Google Maps open the station &gt; Share &gt; <b>Embed a map</b> &gt; copy the HTML and paste it below (or type coordinates like <code>9.1927,123.2631</code>). Only Negros Island Region locations are accepted.</p>
+    <div class="grid2"><input id="a-name" placeholder="Station name"><input id="a-addr" placeholder="Address"><select id="a-q"><option>Purified</option><option>Alkaline</option><option>Distilled</option></select><input id="a-price" type="number" placeholder="Refill price (₱)" value="25"><input id="a-hrs" placeholder="Hours (optional)"><input id="a-phone" placeholder="Phone (optional)"></div>
+    <textarea id="a-embed" rows="3" placeholder="Paste the Google Maps embed code or lat,lng" style="margin:8px 0"></textarea><button class="pri" onclick="addStation()">Add station</button></div>
+   <div id="slist"></div></section>
+  <section id="merchants" class="hide"><p class="note" style="color:#cfe0e6">Review each application. Documents open through a private link that expires after 5 minutes.</p><div id="mlist"></div></section>
+  <section id="payouts" class="hide"><h3 style="margin-bottom:8px">Payout requests</h3><div id="plist"></div><h3 style="margin:16px 0 8px">Refunds to process</h3><p class="note" style="color:#cfe0e6">Cancelled orders and subscriptions that were paid by e-wallet. Refund them in the PayMongo dashboard, then mark them done here.</p><div id="rlist"></div></section>
+  <section id="franchises" class="hide"><div class="glass card"><h3>Franchise headquarters login</h3><p style="color:#cfe0e6;margin:4px 0 10px">Create the single corporate account for a partner franchise. Its HQ can see only its own branches.</p>
+   <div class="grid2"><select id="f-id"></select><input id="f-email" type="email" placeholder="HQ email"><input id="f-pw" type="password" placeholder="Password (8+ characters)"></div><div class="act"><button class="pri" onclick="saveHQ()">Save HQ account</button></div></div><div id="flist"></div></section>
+ </div>
+</div>
+<script>
+const $=s=>document.querySelector(s);let T=sessionStorage.getItem('adm')||'',orders=[],filter='all',timer;
+const esc=t=>String(t==null?'':t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+async function api(p,o={}){const r=await fetch(p,{...o,headers:{'Content-Type':'application/json','x-admin-token':T},body:o.body&&JSON.stringify(o.body)});const j=await r.json().catch(()=>({}));if(r.status===401&&T){logout();}if(!r.ok)throw new Error(j.error||r.statusText);return j}
+async function login(){try{const r=await fetch('/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:$('#pw').value})});const j=await r.json();if(!r.ok)throw new Error(j.error);T=j.token;sessionStorage.setItem('adm',T);start()}catch(e){$('#lerr').textContent=e.message}}
+function logout(){T='';sessionStorage.removeItem('adm');clearInterval(timer);$('#app').classList.add('hide');$('#login').classList.remove('hide')}
+function tab(t){['orders','merchants','payouts','franchises','stations'].forEach(n=>{$('#'+n).classList.toggle('hide',n!==t);$('#t-'+n).classList.toggle('on',n===t)});({stations:loadStations,merchants:loadMerchants,payouts:loadPayouts,franchises:loadFranchises}[t]||(()=>{}))()}
+function start(){$('#login').classList.add('hide');$('#app').classList.remove('hide');loadOrders();clearInterval(timer);timer=setInterval(loadOrders,8000)}
+const stat=o=>o.status==='cancelled'?['Cancelled','b-cancel']:o.status_step>=4?['Completed','b-done']:o.status_step===3?['Ready','b-ready']:o.status_step===0?['Awaiting payment','b-wait']:['Preparing','b-prep'];
+const needs=o=>o.status==='active'&&o.status_step>=1&&o.status_step<3;
+const FILT={all:['All',()=>true],need:['Needs action',needs],ready:['Ready',o=>o.status==='active'&&o.status_step===3],done:['Completed',o=>o.status==='active'&&o.status_step===4],unpaid:['Awaiting payment',o=>o.status==='active'&&o.status_step===0],cancel:['Cancelled',o=>o.status==='cancelled']};
+async function loadOrders(){try{orders=(await api('/api/admin/orders')).orders;renderOrders()}catch(e){}}
+function renderOrders(){
+ const live=orders.filter(o=>o.status!=='cancelled'),rev=live.filter(o=>['paid','cod'].includes(o.payment_status)).reduce((a,o)=>a+o.total,0);
+ $('#stats').innerHTML=[['Orders',orders.length],['Needs action',orders.filter(needs).length],['Ready',orders.filter(FILT.ready[1]).length],['Cancelled',orders.filter(FILT.cancel[1]).length],['Sales (paid + cash)','₱'+rev.toLocaleString()]].map(x=>`<div class="glass stat"><b>${x[1]}</b><span>${x[0]}</span></div>`).join('');
+ $('#chips').innerHTML=Object.entries(FILT).map(([k,v])=>`<button class="${k===filter?'on':''}" onclick="filter='${k}';renderOrders()">${v[0]} (${orders.filter(v[1]).length})</button>`).join('');
+ const q=$('#q').value.toLowerCase(),list=orders.filter(FILT[filter][1]).filter(o=>!q||[o.id,o.customer_name,o.customer_phone,o.customer_email,o.station_name,o.address].join(' ').toLowerCase().includes(q));
+ $('#olist').innerHTML=list.length?list.map(o=>{const[s,c]=stat(o),pick=o.order_type==='pickup',open=o.status==='active'&&o.status_step<4;
+  return `<div class="glass card"><div class="row"><div><b style="font-size:16px">${esc(o.id)}</b> <span class="badge ${c}">${s}</span> <span class="badge">${pick?'Pick-up':'Delivery'}</span><br><span class="lbl">${new Date(o.created_at).toLocaleString()} · ${esc(o.station_name)}</span></div>
+  <div style="text-align:right"><b style="font-size:18px">₱${o.total}</b><br><span class="lbl">${esc(o.payment_method==='QRPh'?'QR Ph':o.payment_method)} · ${o.payment_status==='refund_pending'?'REFUND PENDING':esc(o.payment_status)}</span></div></div>
+  <div class="row" style="margin-top:10px"><div class="col"><div class="lbl">Customer</div>${esc(o.customer_name)}<br><a href="tel:${esc(o.customer_phone)}">${esc(o.customer_phone)}</a><br><a href="mailto:${esc(o.customer_email)}">${esc(o.customer_email)}</a></div>
+  <div class="col"><div class="lbl">${pick?'Pick-up':'Deliver to'}</div>${pick?'At the station':esc(o.address)}</div>
+  <div class="col"><div class="lbl">Items</div>${o.items.map(i=>`${i.quantity}× ${esc(i.name)} (${esc(i.quality)})`).join('<br>')}${o.deposit?`<br>Container deposit ₱${o.deposit}`:''}${o.delivery_fee?`<br>Delivery fee ₱${o.delivery_fee}`:''}</div></div>
+  ${open?`<div class="act">${o.status_step>=1&&o.status_step<3?`<button class="pri" onclick="act('${o.id}','ready')">Confirm ready ${pick?'for pick-up':'for delivery'}</button>`:''}${o.status_step===3?`<button class="pri" onclick="act('${o.id}','complete')">Mark ${pick?'picked up':'delivered'}</button>`:''}<button class="dng" onclick="act('${o.id}','cancel')">Cancel order</button></div>`:''}</div>`}).join(''):'<div class="glass">No orders here yet.</div>'}
+async function act(id,a){if(a==='cancel'&&!confirm('Cancel order '+id+'?'))return;try{await api(`/api/admin/orders/${id}/${a}`,{method:'POST'});loadOrders()}catch(e){alert(e.message)}}
+async function loadStations(){const {stations}=await (await fetch('/api/stations')).json();
+ $('#slist').innerHTML=stations.map(s=>`<div class="glass card"><div class="row"><div><b>${esc(s.name)}</b><br><span class="lbl">${esc(s.address)}</span></div><a target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${s.lat},${s.lng}">Open in Maps</a></div>
+ <div class="grid2" style="margin-top:10px"><select id="q-${s.id}">${['Purified','Alkaline','Distilled'].map(x=>`<option ${x===s.quality?'selected':''}>${x}</option>`).join('')}</select><input id="p-${s.id}" type="number" value="${s.basePrice}"><input id="h-${s.id}" placeholder="Hours" value="${esc(s.hours)}"><input id="n-${s.id}" placeholder="Phone" value="${esc(s.phone)}"></div>
+ <div class="act"><button class="pri" onclick="saveStation('${s.id}')">Save</button><button class="dng" onclick="delStation('${s.id}')">Delete</button></div></div>`).join('')}
+async function saveStation(id){try{await api('/api/admin/stations/'+id,{method:'PATCH',body:{quality:$('#q-'+id).value,basePrice:$('#p-'+id).value,hours:$('#h-'+id).value,phone:$('#n-'+id).value}});alert('Saved')}catch(e){alert(e.message)}}
+async function delStation(id){if(!confirm('Delete this station?'))return;try{await api('/api/admin/stations/'+id,{method:'DELETE'});loadStations()}catch(e){alert(e.message)}}
+async function addStation(){try{await api('/api/admin/stations',{method:'POST',body:{name:$('#a-name').value,address:$('#a-addr').value,quality:$('#a-q').value,basePrice:$('#a-price').value,hours:$('#a-hrs').value,phone:$('#a-phone').value,embed:$('#a-embed').value}});['name','addr','hrs','phone','embed'].forEach(k=>$('#a-'+k).value='');loadStations()}catch(e){alert(e.message)}}
+
+async function openDoc(id,k){const w=window.open('','_blank');try{const j=await api(`/api/admin/merchants/${id}/doc/${k}`);w.location=j.url}catch(e){w.close();alert(e.message)}}
+async function loadMerchants(){const {merchants}=await api('/api/admin/merchants');
+ const c={pending:'b-wait',approved:'b-ready',rejected:'b-cancel',suspended:'b-cancel'};
+ $('#mlist').innerHTML=merchants.length?merchants.map(m=>{const s=m.station;return `<div class="glass card"><div class="row"><div><b style="font-size:16px">${esc(m.business_name)}</b> <span class="badge ${c[m.status]}">${m.status}</span> ${m.franchise?`<span class="badge">${esc(m.franchise)}</span>`:''}<br><span class="lbl">${new Date(m.created_at).toLocaleString()}</span></div><div style="text-align:right"><span class="lbl">Balance owed</span><b>₱${m.balance}</b></div></div>
+ <div class="row" style="margin-top:8px"><div class="col"><div class="lbl">Owner</div>${esc(m.owner_name)}<br><a href="tel:${esc(m.phone)}">${esc(m.phone)}</a><br><a href="mailto:${esc(m.email)}">${esc(m.email)}</a></div>
+ <div class="col"><div class="lbl">Payout to</div>${esc(m.payout_method)} · ${esc(m.payout_name)}<br>${esc(m.payout_number)}</div>
+ <div class="col"><div class="lbl">Branch</div>${s?`${esc(s.name)}<br>${esc(s.address)}<br>${esc(s.quality)} · ₱${s.basePrice} · busy at ${s.capacity} orders<br><a target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${s.lat},${s.lng}">Open in Maps</a>`:'<span style="color:#ffd0d0">Not set up yet</span>'}</div></div>
+ ${m.reject_reason?`<p style="color:#ffd0d0">Reason: ${esc(m.reject_reason)}</p>`:''}
+ <div class="act"><button ${m.docs.dti?'':'disabled'} onclick="openDoc(${m.id},'dti')">${m.docs.dti?'View DTI / Mayor’s permit':'DTI / permit missing'}</button><button ${m.docs.sanitary?'':'disabled'} onclick="openDoc(${m.id},'sanitary')">${m.docs.sanitary?'View sanitary permit / water test':'Sanitary doc missing'}</button>
+ ${m.status!=='approved'?`<button class="pri" onclick="mact(${m.id},'approve')">Approve</button>`:`<button class="dng" onclick="mact(${m.id},'suspend')">Suspend</button>`}${m.status==='pending'?`<button class="dng" onclick="mact(${m.id},'reject')">Reject</button>`:''}</div></div>`}).join(''):'<div class="glass">No merchant applications yet.</div>'}
+async function mact(id,a){let body;if(a!=='approve'){const r=prompt(a==='reject'?'Reason for rejecting (shown to the merchant):':'Reason for suspending:');if(r===null)return;body={reason:r}}try{await api(`/api/admin/merchants/${id}/${a}`,{method:'POST',body});loadMerchants()}catch(e){alert(e.message)}}
+async function loadPayouts(){const {payouts}=await api('/api/admin/payouts');
+ $('#plist').innerHTML=payouts.length?payouts.map(p=>`<div class="glass card"><div class="row"><div><b>${esc(p.business_name)}</b> <span class="badge ${p.status==='paid'?'b-ready':p.status==='pending'?'b-wait':'b-cancel'}">${p.status}</span><br><span class="lbl">${new Date(p.requested_at).toLocaleString()}</span></div><b style="font-size:18px">₱${p.amount}</b></div>
+ <div style="margin-top:6px">Send to <b>${esc(p.method)}</b> · ${esc(p.account_name)} · <b>${esc(p.account_number)}</b>${p.receipt_ref?`<br>Receipt / transaction ID: <b>${esc(p.receipt_ref)}</b>`:''}${p.note?`<br>Note: ${esc(p.note)}`:''}</div>
+ ${p.status==='pending'?`<div class="act"><button class="pri" onclick="payDone(${p.id})">Enter receipt ID &amp; mark paid</button><button class="dng" onclick="payNo(${p.id})">Reject</button></div>`:''}</div>`).join(''):'<div class="glass">No payout requests.</div>';
+ const rf=await api('/api/admin/refunds');const rows=[...rf.orders.map(o=>['order',o.id,o.customer_name,o.customer_phone,o.payment_method,o.total]),...rf.subs.map(o=>['sub',o.id,o.customer_name,o.customer_phone,o.payment_method,o.refund_due])];
+ $('#rlist').innerHTML=rows.length?rows.map(x=>`<div class="glass card row"><span><b>${esc(x[1])}</b> · ${esc(x[2])} · ${esc(x[3])} · ${esc(x[4]==='QRPh'?'QR Ph':x[4])}</span><span><b>₱${x[5]}</b> <button class="pri" onclick="refDone('${x[0]}','${x[1]}')">Mark refunded</button></span></div>`).join(''):'<div class="glass">No refunds waiting.</div>'}
+async function payDone(id){const r=prompt('InstaPay / PESONet transaction ID from the transfer receipt:');if(!r)return;try{await api(`/api/admin/payouts/${id}/paid`,{method:'POST',body:{receiptRef:r}});loadPayouts()}catch(e){alert(e.message)}}
+async function payNo(id){const n=prompt('Reason for rejecting:');if(n===null)return;await api(`/api/admin/payouts/${id}/reject`,{method:'POST',body:{note:n}});loadPayouts()}
+async function refDone(k,id){await api(`/api/admin/refunds/${k}/${id}/done`,{method:'POST'});loadPayouts()}
+async function loadFranchises(){const {franchises}=await api('/api/admin/franchises');$('#f-id').innerHTML=franchises.map(f=>`<option value="${f.id}">${esc(f.name)}</option>`).join('');
+ $('#flist').innerHTML=franchises.map(f=>`<div class="glass card row"><b>${esc(f.name)}</b><span>${f.hq_email?'HQ login: '+esc(f.hq_email):'<i>No HQ login yet</i>'}</span></div>`).join('')}
+async function saveHQ(){try{await api('/api/admin/franchises',{method:'POST',body:{id:$('#f-id').value,email:$('#f-email').value,password:$('#f-pw').value}});$('#f-pw').value='';loadFranchises();alert('HQ account saved')}catch(e){alert(e.message)}}
+if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('/sw.js');
+$('#pw').addEventListener('keydown',e=>{if(e.key==='Enter')login()});
+if(T)start();
+</script></body></html>

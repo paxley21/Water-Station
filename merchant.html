@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AquaFlow Merchant Portal</title>
+<link rel="manifest" href="/manifest.webmanifest"><meta name="theme-color" content="#006989">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{margin:0;font:14px/1.5 Poppins,system-ui,sans-serif;color:#f4f8fa;min-height:100vh;padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0);text-shadow:0 1px 2px rgba(0,40,55,.5);background:radial-gradient(circle at 0 0,rgba(234,235,237,.3),rgba(234,235,237,0) 24%),linear-gradient(150deg,#006989,#00566f 45%,#003f52) fixed}
+h1,h2,h3{font-family:'Playfair Display',Georgia,serif;margin:0;text-shadow:0 2px 6px rgba(0,35,50,.65)}
+.wrap{max-width:1000px;margin:auto;padding:14px}
+.glass{background:rgba(0,38,52,.7);border:1px solid rgba(255,255,255,.28);border-radius:16px;padding:14px;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 8px 28px rgba(0,30,45,.35);margin-bottom:12px}
+header{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:12px}
+button,select,input,textarea{font:inherit;border-radius:10px;border:1px solid rgba(255,255,255,.3);padding:8px 12px;background:rgba(255,255,255,.1);color:#fff;text-shadow:none}
+input,select,textarea{background:rgba(0,25,35,.7);width:100%}input[type=checkbox]{width:auto}
+select option{color:#000}
+button{cursor:pointer;transition:.2s}button:hover{background:rgba(255,255,255,.22)}
+.pri{background:#eaebed;color:#00303f;font-weight:600;border-color:#eaebed}.pri:hover{background:#fff}.dng{border-color:#ff9c9c;color:#ffd0d0}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}.on{background:#eaebed!important;color:#00303f!important;font-weight:600}
+.lbl{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#9fc3cf;display:block;margin:8px 0 2px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.row{display:flex;flex-wrap:wrap;gap:8px 16px;justify-content:space-between;align-items:flex-start}
+.badge{display:inline-block;padding:2px 10px;border-radius:99px;font-size:11px;font-weight:600}
+.g{background:#cdeedd;color:#064}.y{background:#ffe7b3;color:#650}.r{background:#ffd0d0;color:#700}.b{background:#bfe7f3;color:#034}.w{background:#eaebed;color:#00303f}
+.act{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.hide{display:none!important}a{color:#bfe7f3}
+.stat b{display:block;font:700 24px 'Playfair Display',serif}.chk{display:flex;gap:6px;align-items:center;font-size:13px}
+.note{font-size:12px;color:#cfe0e6}
+@media(max-width:600px){.wrap{padding:10px}.act button{flex:1}}
+</style></head><body>
+<div class="wrap">
+<header><div><h1>AquaFlow Merchant Portal</h1><span class="note">Register your refilling station, manage orders and get paid</span></div><div><span id="who" class="badge w hide"></span> <a href="/">Customer site</a> <button id="out" class="hide" onclick="logout()">Sign out</button></div></header>
+
+<div id="auth">
+ <div class="tabs"><button id="ta-l" class="on" onclick="authTab('l')">Sign in</button><button id="ta-r" onclick="authTab('r')">Register my station</button></div>
+ <div class="glass" id="f-l"><label class="lbl">Email</label><input id="l-email" type="email" autocomplete="username"><label class="lbl">Password</label><input id="l-pw" type="password" autocomplete="current-password">
+  <p class="note">Franchise headquarters accounts sign in here too.</p><button class="pri" onclick="doLogin()">Sign in</button></div>
+ <div class="glass hide" id="f-r"><div class="grid">
+  <div><label class="lbl">Business / station name</label><input id="r-biz"></div><div><label class="lbl">Owner full name</label><input id="r-owner"></div>
+  <div><label class="lbl">Email</label><input id="r-email" type="email"></div><div><label class="lbl">Mobile number</label><input id="r-phone" placeholder="09XXXXXXXXX"></div>
+  <div><label class="lbl">Password (8+ characters)</label><input id="r-pw" type="password" autocomplete="new-password"></div>
+  <div><label class="lbl">Franchise</label><select id="r-fr"><option value="">Independent station</option></select></div></div>
+  <h3 style="margin-top:14px">Where should we send your earnings?</h3><div class="grid">
+  <div><label class="lbl">Payout method</label><select id="r-pm"><option>GCash</option><option>Maya</option><option>Bank</option></select></div>
+  <div><label class="lbl">Account name</label><input id="r-pn"></div><div><label class="lbl">Mobile / account number</label><input id="r-pa"></div></div>
+  <p class="note">We only need a public receiving number. You never link or authorize your wallet. Customer payments go to the platform, we record your earnings, and we transfer them when you request a payout.</p>
+  <button class="pri" onclick="doRegister()">Create merchant account</button></div>
+ <p id="aerr" style="color:#ffd0d0"></p>
+</div>
+
+<div id="app" class="hide">
+ <div class="tabs" id="tabs"></div>
+ <section id="p-overview"></section>
+ <section id="p-branch" class="hide"></section>
+ <section id="p-docs" class="hide"></section>
+ <section id="p-orders" class="hide"></section>
+ <section id="p-gallons" class="hide"></section>
+ <section id="p-money" class="hide"></section>
+ <section id="p-hq" class="hide"></section>
+</div>
+</div>
+<script>
+const $=s=>document.querySelector(s),GAL=[['slim_blue','Slim blue gallon'],['round_blue','Round blue gallon'],['round_clear','Round clear gallon'],['dispenser_20l','20L dispenser bottle'],['aquabest','Aquabest gallon'],['crystal_clear','Crystal Clear gallon'],['other','Other brands']];
+const esc=t=>String(t==null?'':t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let T=sessionStorage.getItem('mt')||'',ROLE=sessionStorage.getItem('mr')||'',ME=null,timer,orders=[];
+async function api(p,o={}){const h={'x-admin-token':T};if(!(o.body instanceof FormData)&&o.body)h['Content-Type']='application/json';const r=await fetch(p,{...o,headers:h,body:o.body instanceof FormData?o.body:o.body&&JSON.stringify(o.body)});const j=await r.json().catch(()=>({}));if(r.status===401&&T&&!p.includes('login')){logout()}if(!r.ok)throw new Error(j.error||r.statusText);return j}
+function authTab(t){$('#f-l').classList.toggle('hide',t!=='l');$('#f-r').classList.toggle('hide',t!=='r');$('#ta-l').classList.toggle('on',t==='l');$('#ta-r').classList.toggle('on',t==='r')}
+async function begin(r){T=r.token;ROLE=r.role;sessionStorage.setItem('mt',T);sessionStorage.setItem('mr',ROLE);await boot()}
+async function doLogin(){try{await begin(await api('/api/merchant/login',{method:'POST',body:{email:$('#l-email').value,password:$('#l-pw').value}}))}catch(e){$('#aerr').textContent=e.message}}
+async function doRegister(){try{await begin(await api('/api/merchant/register',{method:'POST',body:{businessName:$('#r-biz').value,ownerName:$('#r-owner').value,email:$('#r-email').value,phone:$('#r-phone').value,password:$('#r-pw').value,franchiseId:$('#r-fr').value,payoutMethod:$('#r-pm').value,payoutName:$('#r-pn').value,payoutNumber:$('#r-pa').value}}))}catch(e){$('#aerr').textContent=e.message}}
+function logout(){T='';ROLE='';sessionStorage.clear();clearInterval(timer);$('#app').classList.add('hide');$('#auth').classList.remove('hide');$('#out').classList.add('hide');$('#who').classList.add('hide')}
+const TABS={overview:'Overview',branch:'My branch',docs:'Documents',orders:'Orders',gallons:'Smart Gallons',money:'Earnings & payouts'};
+function tab(t){document.querySelectorAll('#app section').forEach(s=>s.classList.toggle('hide',s.id!=='p-'+t));document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));if(t==='orders')loadOrders();if(t==='money')loadMoney()}
+async function boot(){
+ $('#auth').classList.add('hide');$('#app').classList.remove('hide');$('#out').classList.remove('hide');$('#who').classList.remove('hide');
+ if(ROLE==='franchise'){$('#tabs').innerHTML='<button class="on" data-t="hq">Franchise HQ</button>';$('#who').textContent='Franchise HQ';tab('hq');return loadHQ()}
+ $('#tabs').innerHTML=Object.entries(TABS).map(([k,v])=>`<button data-t="${k}" onclick="tab('${k}')">${v}</button>`).join('');
+ await loadMe();tab('overview');clearInterval(timer);timer=setInterval(()=>{if(!$('#p-orders').classList.contains('hide'))loadOrders()},8000)}
+async function loadMe(){ME=await api('/api/merchant/me');const m=ME.merchant,s=ME.station;$('#who').textContent=m.business_name;
+ const st={pending:['Waiting for approval','y'],approved:['Approved: your station is live','g'],rejected:['Rejected','r'],suspended:['Suspended','r']}[m.status];
+ const ck=(ok,t)=>`<div>${ok?'✔':'○'} ${t}</div>`;
+ $('#p-overview').innerHTML=`<div class="glass"><h2>${esc(m.business_name)}</h2><p><span class="badge ${st[1]}">${st[0]}</span> ${ME.franchise?`<span class="badge b">${esc(ME.franchise)} branch</span>`:'<span class="badge w">Independent</span>'}</p>
+ ${m.reject_reason?`<p style="color:#ffd0d0">Reason: ${esc(m.reject_reason)}</p>`:''}<h3>Checklist</h3>${ck(!!s,'Branch details saved')}${ck(m.docs.dti,"DTI certificate / Mayor's business permit uploaded")}${ck(m.docs.sanitary,'Sanitary permit / water quality test result uploaded')}${ck(m.status==='approved','Approved by the AquaFlow team')}
+ <p class="note">Once approved, your branch appears on the customer map and you can accept orders.</p></div>`;
+ const a=s?s.accepts:[];$('#p-branch').innerHTML=`<div class="glass"><h2>Branch details</h2><div class="grid">
+ <div><label class="lbl">Branch name</label><input id="b-name" value="${esc(s&&s.name||m.business_name)}"></div><div><label class="lbl">Address</label><input id="b-addr" value="${esc(s&&s.address)}"></div>
+ <div><label class="lbl">Water quality</label><select id="b-q">${['Purified','Alkaline','Distilled'].map(x=>`<option ${s&&s.quality===x?'selected':''}>${x}</option>`).join('')}</select></div>
+ <div><label class="lbl">Refill price (₱ per 5-gallon)</label><input id="b-price" type="number" value="${s?s.basePrice:25}"></div>
+ <div><label class="lbl">Hours</label><input id="b-hrs" value="${esc(s&&s.hours)}" placeholder="e.g. 7:00 AM - 7:00 PM"></div><div><label class="lbl">Phone</label><input id="b-phone" value="${esc(s&&s.phone||m.phone)}"></div>
+ <div><label class="lbl">Busy when active orders reach</label><input id="b-cap" type="number" value="${s?s.capacity:5}"></div><div><label class="lbl">Delivery</label><label class="chk"><input id="b-del" type="checkbox" ${!s||s.delivers?'checked':''}> We deliver</label></div></div>
+ <label class="lbl">Gallons you swap with no extra deposit</label><div class="grid">${GAL.map(g=>`<label class="chk"><input type="checkbox" class="b-acc" value="${g[0]}" ${a.includes(g[0])?'checked':''}> ${g[1]}</label>`).join('')}</div>
+ <label class="lbl">Map location ${s?'(leave empty to keep the current one)':''}</label><textarea id="b-embed" rows="3" placeholder='On Google Maps: open your station > Share > Embed a map > copy the HTML and paste it here (or type coordinates like 9.1927,123.2631)'></textarea>
+ <div class="act"><button class="pri" onclick="saveBranch()">Save branch</button></div><p id="b-msg" class="note"></p></div>`;
+ const dz=(k,t,ok)=>`<div class="glass"><b>${t}</b> ${ok?'<span class="badge g">Uploaded</span>':'<span class="badge y">Missing</span>'}<br><input type="file" id="d-${k}" accept="image/jpeg,image/png,application/pdf" style="margin:8px 0"><button class="pri" onclick="upDoc('${k}')">${ok?'Replace':'Upload'}</button></div>`;
+ $('#p-docs').innerHTML=`<div class="glass"><h2>Business documents</h2><p class="note">JPG, PNG or PDF up to 5 MB. Files are stored in a private bucket. Our verifier opens them through links that expire after 5 minutes.</p></div>${dz('dti',"DTI Registration Certificate / Mayor's Business Permit",m.docs.dti)}${dz('sanitary','Sanitary Permit / Water Quality Test Result',m.docs.sanitary)}<p id="d-msg" class="note"></p>`;
+ $('#p-gallons').innerHTML=`<div class="glass"><h2>Scan a Smart Gallon</h2><p class="note">Scan the QR sticker when you drop off, pick up or refill a customer's gallon. It is always matched to its owner, so customers get their own clean container back.</p>
+ <label class="lbl">Gallon code</label><input id="g-code" placeholder="SG-XXXXXXXX"><div class="act"><button onclick="camScan()">Scan with camera</button></div><video id="cam" class="hide" playsinline style="width:100%;max-width:320px;border-radius:12px;margin-top:8px"></video>
+ <label class="lbl">What happened?</label><select id="g-ev"><option value="dropoff">Dropped off to customer</option><option value="pickup">Picked up from customer</option><option value="refilled">Cleaned and refilled at station</option></select>
+ <label class="lbl">Order (required for drop-off)</label><select id="g-ord"><option value="">None</option></select><div class="act"><button class="pri" onclick="doScan()">Record scan</button></div><p id="g-msg"></p></div>`}
+async function saveBranch(){try{await api('/api/merchant/branch',{method:'PUT',body:{name:$('#b-name').value,address:$('#b-addr').value,quality:$('#b-q').value,basePrice:$('#b-price').value,hours:$('#b-hrs').value,phone:$('#b-phone').value,capacity:$('#b-cap').value,delivers:$('#b-del').checked,accepts:[...document.querySelectorAll('.b-acc:checked')].map(x=>x.value),embed:$('#b-embed').value}});$('#b-msg').textContent='Saved.';await loadMe();tab('branch')}catch(e){$('#b-msg').textContent=e.message}}
+async function upDoc(k){const f=$('#d-'+k).files[0];if(!f)return $('#d-msg').textContent='Choose a file first.';const fd=new FormData();fd.append('file',f);try{await api('/api/merchant/docs/'+k,{method:'POST',body:fd});await loadMe();tab('docs');$('#d-msg').textContent='Uploaded.'}catch(e){$('#d-msg').textContent=e.message}}
+async function loadOrders(){try{orders=(await api('/api/merchant/orders')).orders}catch(e){return}
+ const stat=o=>o.status==='cancelled'?['Cancelled','r']:o.status_step>=4?['Completed','w']:o.status_step===3?['Ready','g']:o.status_step===0?['Awaiting payment','y']:['Preparing','b'];
+ $('#p-orders').innerHTML=orders.length?orders.map(o=>{const[s,c]=stat(o),pick=o.order_type==='pickup',open=o.status==='active'&&o.status_step<4;return `<div class="glass"><div class="row"><div><b>${esc(o.id)}</b> <span class="badge ${c}">${s}</span> <span class="badge w">${pick?'Pick-up':'Delivery'}</span><br><span class="note">${new Date(o.created_at).toLocaleString()}</span></div><div><b>₱${o.total}</b><br><span class="note">${esc(o.payment_method==='QRPh'?'QR Ph':o.payment_method)} · ${esc(o.payment_status)}</span></div></div>
+ <div class="row" style="margin-top:8px"><div><span class="lbl">Customer</span>${esc(o.customer_name)}<br><a href="tel:${esc(o.customer_phone)}">${esc(o.customer_phone)}</a><br>${esc(o.customer_email)}</div><div><span class="lbl">${pick?'Pick-up':'Deliver to'}</span>${pick?'At the station':esc(o.address)}</div>
+ <div><span class="lbl">Items</span>${o.items.map(i=>`${i.quantity}× ${esc(i.name)}`).join('<br>')}${o.gallon_type?`<br><span class="note">Customer gallon: ${esc(o.gallon_type)}</span>`:''}</div></div>
+ ${open?`<div class="act">${o.status_step>=1&&o.status_step<3?`<button class="pri" onclick="oact('${o.id}','ready')">Confirm ready ${pick?'for pick-up':'for delivery'}</button>`:''}${o.status_step===3?`<button class="pri" onclick="oact('${o.id}','complete')">Mark ${pick?'picked up':'delivered'}</button>`:''}<button class="dng" onclick="oact('${o.id}','cancel')">Cancel</button></div>`:''}</div>`}).join(''):'<div class="glass">No orders yet.</div>';
+ const sel=$('#g-ord');if(sel){const v=sel.value;sel.innerHTML='<option value="">None</option>'+orders.filter(o=>o.status==='active'&&o.status_step>=1&&o.status_step<=3).map(o=>`<option ${o.id===v?'selected':''}>${esc(o.id)}</option>`).join('')}}
+async function oact(id,a){if(a==='cancel'&&!confirm('Cancel order '+id+'?'))return;try{await api(`/api/merchant/orders/${id}/${a}`,{method:'POST'});loadOrders()}catch(e){alert(e.message)}}
+async function doScan(){try{const g=await api('/api/merchant/gallons/scan',{method:'POST',body:{code:$('#g-code').value,event:$('#g-ev').value,orderId:$('#g-ord').value}});$('#g-msg').style.color='#cdeedd';$('#g-msg').textContent=`${g.id}: ${g.status.replace('_',' ')} (refilled ${g.cycles} times)`}catch(e){$('#g-msg').style.color='#ffd0d0';$('#g-msg').textContent=e.message}}
+async function camScan(){if(!('BarcodeDetector' in window))return alert('Camera scanning is not supported on this browser. Type the code under the QR instead.');
+ try{const v=$('#cam'),s=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}}),d=new BarcodeDetector({formats:['qr_code']});v.srcObject=s;v.classList.remove('hide');await v.play();
+ const tick=async()=>{if(!v.srcObject)return;const c=await d.detect(v).catch(()=>[]);if(c.length){$('#g-code').value=c[0].rawValue;s.getTracks().forEach(t=>t.stop());v.srcObject=null;v.classList.add('hide')}else requestAnimationFrame(tick)};tick()}catch(e){alert('Could not open the camera: '+e.message)}}
+async function loadMoney(){try{const L=await api('/api/merchant/ledger');
+ $('#p-money').innerHTML=`<div class="grid"><div class="glass stat"><b>₱${L.available}</b>Available to withdraw</div><div class="glass stat"><b>₱${L.pendingPayout}</b>Payout requested</div><div class="glass stat"><b>₱${L.paidOut}</b>Paid out</div><div class="glass stat"><b>₱${L.earned}</b>Total earned (after ${L.commissionPct}% fee)</div></div>
+ <div class="glass"><p class="note">E-wallet payments are collected by the platform. Each completed order is added to your ledger, and you can request a payout at the end of the week or month. Cash orders are collected by you directly.</p><button class="pri" onclick="reqPayout()">Request payout</button> <span id="m-msg" class="note"></span></div>
+ <div class="glass"><h3>Payout history</h3>${L.payouts.length?L.payouts.map(p=>`<div class="row"><span>${new Date(p.requested_at).toLocaleDateString()} · ₱${p.amount} → ${esc(p.method)} ${esc(p.account_number)}</span><span><span class="badge ${p.status==='paid'?'g':p.status==='pending'?'y':'r'}">${p.status}</span> ${p.receipt_ref?'Ref '+esc(p.receipt_ref):''}</span></div>`).join(''):'<span class="note">No payouts yet.</span>'}</div>
+ <div class="glass"><h3>Ledger</h3>${L.entries.length?L.entries.map(e=>`<div class="row"><span>${esc(e.order_id)} · ${new Date(e.created_at).toLocaleDateString()}</span><span>₱${e.gross} − ₱${e.commission} fee = <b>₱${e.net}</b></span></div>`).join(''):'<span class="note">Completed e-wallet orders will appear here.</span>'}</div>`}catch(e){}}
+async function reqPayout(){try{await api('/api/merchant/payouts',{method:'POST'});loadMoney()}catch(e){$('#m-msg').textContent=e.message}}
+async function loadHQ(){const o=await api('/api/franchise/overview');$('#who').textContent=o.franchise.name+' HQ';
+ $('#p-hq').innerHTML=`<div class="glass"><h2>${esc(o.franchise.name)} branches</h2></div>`+(o.branches.map(b=>`<div class="glass"><div class="row"><div><b>${esc(b.name)}</b><br><span class="note">${esc(b.address)} · ${esc(b.business_name)}</span></div><div><span class="badge ${b.status==='approved'?'g':'y'}">${b.status}</span></div></div><p>Orders: <b>${b.orders}</b> &nbsp; Sales (paid + cash): <b>₱${b.sales}</b></p></div>`).join('')||'<div class="glass">No branches registered under your franchise yet.</div>')}
+fetch('/api/franchises').then(r=>r.json()).then(j=>j.franchises.forEach(f=>{$('#r-fr').insertAdjacentHTML('beforeend',`<option value="${f.id}">${esc(f.name)} (franchise branch)</option>`)})).catch(()=>{});
+$('#l-pw').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
+if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('/sw.js');
+if(T)boot().catch(()=>logout());
+</script></body></html>
